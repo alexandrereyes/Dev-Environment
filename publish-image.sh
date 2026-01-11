@@ -4,8 +4,14 @@
 
 set -e
 
+# Carrega variáveis do .env se existir
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    export $(grep -v '^#' "$SCRIPT_DIR/.env" | xargs)
+fi
+
 IMAGE_NAME="devenv"
-DOCKER_USER="alexandremblah"
+DOCKER_USER="${DOCKER_USER:-alexandremblah}"
 DOCKER_TOKEN="${DOCKER_TOKEN:-}"
 
 echo "==> Fazendo build da imagem..."
