@@ -1,0 +1,36 @@
+services:
+  opencode:
+    image: alexandremblah/devenv:latest
+    command: opencode serve --hostname 0.0.0.0 --port 80
+    volumes:
+      - opencode-data:/root
+      - workspace-data:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - public
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname==host-6
+      update_config:
+        parallelism: 1
+        failure_action: pause
+        delay: 5s
+        order: stop-first
+      rollback_config:
+        parallelism: 1
+        failure_action: pause
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 5s
+
+volumes:
+  opencode-data:
+  workspace-data:
+
+networks:
+  public:
+    external: true

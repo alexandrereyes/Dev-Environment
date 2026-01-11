@@ -9,21 +9,67 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - ca-certificates: para conexões HTTPS
 # - git: necessário para operações do OpenCode com repositórios
 # - unzip: pode ser necessário para extrair binários
+# - gnupg, lsb-release, apt-transport-https: para adicionar repositórios externos
+# - chromium: navegador headless
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
     git \
     unzip \
+    gnupg \
+    lsb-release \
+    apt-transport-https \
+    chromium \
     && rm -rf /var/lib/apt/lists/*
+
+# Variáveis de ambiente para Chromium headless
+ENV CHROME_BIN=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Instala .NET 10 (preview)
+RUN curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh \
+    && chmod +x dotnet-install.sh \
+    && ./dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet \
+    && rm dotnet-install.sh \
+    && ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
+
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="${PATH}:/usr/share/dotnet"
+
+# Instala GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y gh \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instala Docker CLI
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian bookworm stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y docker-ce-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instala Azure CLI
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # Instala o OpenCode usando o script oficial
 RUN curl -fsSL https://opencode.ai/install | bash
 
-# Adiciona o binário ao PATH (o script instala em ~/.local/bin por padrão)
-ENV PATH="/root/.local/bin:${PATH}"
+# Adiciona o binário ao PATH (o script instala em ~/.opencode/bin por padrão)
+ENV PATH="/root/.opencode/bin:${PATH}"
 
 # Define o diretório de trabalho
 WORKDIR /workspace
+
+# Copia e configura o entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Entrypoint para configurar credenciais automaticamente
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Comando padrão
 CMD ["opencode"]
