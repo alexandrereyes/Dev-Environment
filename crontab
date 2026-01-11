@@ -1,0 +1,4 @@
+# Crontab para o DevEnvironment
+# Rebuild e publish da imagem Docker diariamente às 3h da manhã
+
+0 3 * * * /workspace/publish-image.sh >> /var/log/publish-image.log 2>&1

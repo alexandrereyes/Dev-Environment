@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Inicia o serviço cron em background
+service cron start
+
 # Configura o GitHub CLI com Git se existir autenticação válida
 if [ -f "$HOME/.config/gh/hosts.yml" ]; then
     # Verifica se o arquivo não está vazio e contém configuração

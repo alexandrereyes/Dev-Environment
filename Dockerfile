@@ -11,6 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # - unzip: pode ser necessário para extrair binários
 # - gnupg, lsb-release, apt-transport-https: para adicionar repositórios externos
 # - chromium: navegador headless
+# - cron: para agendamento de tarefas
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -20,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     apt-transport-https \
     chromium \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Variáveis de ambiente para Chromium headless
@@ -67,6 +69,10 @@ WORKDIR /workspace
 # Copia e configura o entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+# Configura o cron job para rebuild diário da imagem às 3h
+COPY crontab /etc/cron.d/devenv-cron
+RUN chmod 0644 /etc/cron.d/devenv-cron && crontab /etc/cron.d/devenv-cron
 
 # Entrypoint para configurar credenciais automaticamente
 ENTRYPOINT ["/entrypoint.sh"]

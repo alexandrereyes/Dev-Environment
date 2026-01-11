@@ -46,6 +46,18 @@ Quando o usuário pedir para **publicar a imagem**, execute o script:
 ./publish-image.sh
 ```
 
-Este script faz o build da imagem e push para o Docker Hub automaticamente.
+Este script:
+- Carrega as credenciais do arquivo `.env` automaticamente
+- Usa BuildKit para builds mais rápidos e eficientes
+- Faz o push para o Docker Hub
+
+#### Configuração de Credenciais
+
+O arquivo `.env` (não versionado) contém as credenciais do Docker Hub:
+
+```bash
+DOCKER_TOKEN=<token>
+DOCKER_USER=alexandremblah
+```
 
 **Imagem no Docker Hub:** https://hub.docker.com/r/alexandremblah/devenv
