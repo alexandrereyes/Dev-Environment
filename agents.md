@@ -61,3 +61,25 @@ DOCKER_USER=alexandremblah
 ```
 
 **Imagem no Docker Hub:** https://hub.docker.com/r/alexandremblah/devenv
+
+### Build Multi-Plataforma (amd64 + arm64)
+
+A imagem **deve** ser publicada para múltiplas arquiteturas (amd64 para servidores Linux e arm64 para Mac M1/M2). Para isso, usar o buildx:
+
+```bash
+# Criar/usar builder multi-arch (primeira vez)
+docker buildx create --name multiarch --use 2>/dev/null || docker buildx use multiarch
+
+# Build e push para ambas plataformas
+docker buildx build --platform linux/amd64,linux/arm64 -t alexandremblah/devenv:latest --push .
+```
+
+> **Importante:** O script `./publish-image.sh` faz build apenas para a arquitetura local. Para deploy em servidores x86_64, **sempre usar o comando buildx acima**.
+
+### Notas sobre o Dockerfile
+
+- O OpenCode é instalado em `/opt/opencode/bin` (não em `/root/.opencode/bin`) para evitar conflitos com volumes Docker que podem ser montados em `/root`
+- A variável `OPENCODE_INSTALL_DIR` controla o diretório de instalação
+- O entrypoint intercepta o comando `opencode` e usa o caminho absoluto para garantir execução
+
+**Repositório do OpenCode:** https://github.com/anomalyco/opencode

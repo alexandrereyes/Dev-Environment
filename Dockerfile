@@ -5,13 +5,6 @@ FROM debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Instala as dependências necessárias
-# - curl: para baixar o script de instalação
-# - ca-certificates: para conexões HTTPS
-# - git: necessário para operações do OpenCode com repositórios
-# - unzip: pode ser necessário para extrair binários
-# - gnupg, lsb-release, apt-transport-https: para adicionar repositórios externos
-# - chromium: navegador headless
-# - cron: para agendamento de tarefas
 RUN apt-get update && apt-get install -y \
     curl \
     ca-certificates \
@@ -54,13 +47,18 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
     && apt-get install -y docker-ce-cli docker-buildx-plugin \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala o OpenCode usando o script oficial
-RUN curl -fsSL https://opencode.ai/install | bash
+# Instala o OpenCode em /opt/opencode/bin
+# IMPORTANTE: NÃO instalar em /root/.opencode/bin (padrão) porque volumes Docker
+# montados em /root sobrescrevem o diretório e o binário desaparece em runtime
+RUN curl -fsSL https://opencode.ai/install | bash \
+    && mkdir -p /opt/opencode/bin \
+    && mv /root/.opencode/bin/opencode /opt/opencode/bin/ \
+    && rm -rf /root/.opencode
 
-# Adiciona o binário ao PATH (o script instala em ~/.opencode/bin por padrão)
-ENV PATH="/root/.opencode/bin:${PATH}"
+# Adiciona o binário ao PATH
+ENV PATH="/opt/opencode/bin:${PATH}"
 
-# Define o diretório de trabalho
+# Define o diretório de trabalho padrão
 WORKDIR /workspace
 
 # Copia e configura o entrypoint script
@@ -71,8 +69,8 @@ RUN chmod +x /entrypoint.sh
 COPY crontab /etc/cron.d/devenv-cron
 RUN chmod 0644 /etc/cron.d/devenv-cron && crontab /etc/cron.d/devenv-cron
 
-# Entrypoint para configurar credenciais automaticamente
+# Entrypoint para inicialização (cron, github cli)
 ENTRYPOINT ["/entrypoint.sh"]
 
-# Comando padrão
+# Comando padrão: abre o OpenCode TUI no diretório atual
 CMD ["opencode"]

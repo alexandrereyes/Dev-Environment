@@ -1,10 +1,17 @@
 services:
   opencode:
     image: alexandremblah/devenv:latest
-    command: opencode serve --hostname 0.0.0.0 --port 80
+    working_dir: /workspace
+    command: ["opencode", "serve", "--hostname", "0.0.0.0", "--port", "80"]
+    ports:
+      - "4096:80"
     volumes:
-      - opencode-data:/root
-      - workspace-data:/workspace
+      # IMPORTANTE: NÃO montar volume em /root inteiro!
+      # Isso sobrescreve qualquer arquivo instalado em /root durante o build.
+      # Montar apenas subdiretórios específicos que precisam de persistência:
+      - opencode-config:/root/.config    # Configurações do OpenCode e GitHub CLI
+      - opencode-cache:/root/.cache      # Cache do OpenCode
+      - workspace-data:/workspace        # Área de trabalho
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - public
@@ -28,7 +35,8 @@ services:
         delay: 5s
 
 volumes:
-  opencode-data:
+  opencode-config:
+  opencode-cache:
   workspace-data:
 
 networks:
