@@ -15,7 +15,7 @@ DOCKER_USER="${DOCKER_USER:-alexandremblah}"
 DOCKER_TOKEN="${DOCKER_TOKEN:-}"
 
 echo "==> Fazendo build da imagem..."
-docker build -t $IMAGE_NAME .
+DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME .
 
 echo "==> Autenticando no Docker Hub..."
 echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
