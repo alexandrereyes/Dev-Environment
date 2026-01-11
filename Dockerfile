@@ -54,9 +54,6 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
     && apt-get install -y docker-ce-cli docker-buildx-plugin \
     && rm -rf /var/lib/apt/lists/*
 
-# Instala Azure CLI
-RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
-
 # Instala o OpenCode usando o script oficial
 RUN curl -fsSL https://opencode.ai/install | bash
 
