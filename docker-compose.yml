@@ -10,10 +10,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      # Com HOME=/workspace, os arquivos de config ficam em /workspace/.config
-      - opencode-config:/workspace/.config    # Configurações do OpenCode e GitHub CLI
-      - opencode-cache:/workspace/.cache      # Cache do OpenCode
-      - workspace-data:/workspace             # Área de trabalho (também é o HOME)
+      - workspace-data:/workspace
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - public
@@ -37,8 +34,6 @@ services:
         delay: 5s
 
 volumes:
-  opencode-config:
-  opencode-cache:
   workspace-data:
 
 networks:
