@@ -96,7 +96,7 @@ services:
       - "5343:5341"
     environment:
       ACCEPT_EULA: "Y"
-      SEQ_FIRSTRUN_ADMINPASSWORD: ${SEQ_ADMIN_PASSWORD:-seq}
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
     volumes:
       - seq_svc_data:/data
     healthcheck:
