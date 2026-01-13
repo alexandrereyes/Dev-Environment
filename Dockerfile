@@ -72,7 +72,7 @@ WORKDIR /workspace
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Configura o cron job para rebuild diário da imagem às 3h
+# Configura o cron job para atualização diária do OpenCode às 3h (Brasília)
 COPY crontab /etc/cron.d/devenv-cron
 RUN chmod 0644 /etc/cron.d/devenv-cron && crontab /etc/cron.d/devenv-cron
 

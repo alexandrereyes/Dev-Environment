@@ -33,26 +33,6 @@ services:
         condition: any
         delay: 5s
 
-  shepherd:
-    image: containrrr/shepherd
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - SLEEP_TIME=5m
-      - ROLLBACK_ON_FAILURE=true
-      - IMAGE_AUTOCLEAN_LIMIT=5
-      - TZ=America/Sao_Paulo
-      - FILTER_SERVICES=label=com.docker.stack.namespace=opencode
-    networks:
-      - public
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: any
-        delay: 5s
-
 volumes:
   workspace-data:
 
