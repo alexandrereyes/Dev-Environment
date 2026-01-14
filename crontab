@@ -1,5 +1,0 @@
-# Crontab para o DevEnvironment
-# Reinicia o container diariamente às 3h (horário de Brasília / 6h UTC)
-# O entrypoint atualiza o OpenCode automaticamente ao iniciar
-
-0 6 * * * pkill -f "opencode serve"
