@@ -1,6 +1,27 @@
 services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup --scope opencode --rolling-restart
+    labels:
+      - "com.centurylinklabs.watchtower.scope=opencode"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname==host-6
+      restart_policy:
+        condition: any
+        delay: 5s
+    networks:
+      - public
+
   opencode:
     image: alexandremblah/opencode:latest
+    labels:
+      - "com.centurylinklabs.watchtower.scope=opencode"
     working_dir: /workspace
     environment:
       - HOME=/workspace
