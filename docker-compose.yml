@@ -4,7 +4,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - SLEEP_TIME=5m
+      - SLEEP_TIME=1h
       - FILTER_SERVICES=label=shepherd.autoupdate=true
       - IMAGE_AUTOCLEAN_LIMIT=3
       - ROLLBACK_ON_FAILURE=true
