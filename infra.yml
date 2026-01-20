@@ -108,12 +108,28 @@ services:
     networks:
       - public
 
+  litellm-svc:
+    image: ghcr.io/berriai/litellm-database:main-stable
+    environment:
+      LITELLM_MASTER_KEY: sk-litellm-master-key
+      DATABASE_URL: postgresql://postgres:postgres@postgres-svc:5432/litellm
+    volumes:
+      - litellm_svc_config:/app/config
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - postgres-svc
+    networks:
+      - public
+
 volumes:
   postgres_svc_data:
   redis_svc_data:
   rabbitmq_svc_data:
   minio_svc_data:
   seq_svc_data:
+  litellm_svc_config:
 
 networks:
   public:
