@@ -24,8 +24,6 @@ services:
   redis-svc:
     image: redis:8.0.2-bookworm
     command: redis-server --requirepass redis
-    volumes:
-      - redis_svc_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "redis", "ping"]
       interval: 10s
@@ -106,8 +104,6 @@ services:
       STORE_PROMPTS_IN_SPEND_LOGS: "True"
       LITELLM_MODE: "PRODUCTION"
       LITELLM_DROP_PARAMS: "True"
-    volumes:
-      - litellm_svc_config:/app/config
     deploy:
       restart_policy:
         condition: on-failure
@@ -118,11 +114,9 @@ services:
 
 volumes:
   postgres_svc_data:
-  redis_svc_data:
   rabbitmq_svc_data:
   minio_svc_data:
   seq_svc_data:
-  litellm_svc_config:
 
 networks:
   public:

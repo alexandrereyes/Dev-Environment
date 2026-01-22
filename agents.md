@@ -2,7 +2,71 @@
 
 Este projeto configura a infraestrutura core do ambiente de desenvolvimento do Alexandre.
 
-## Visao Geral
+## Arquitetura de Rede
+
+### Visao Geral da Topologia
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              TWINGATE (Zero Trust)                          │
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────────────────────────────────────────┐  │
+│  │   Mac Ale   │      │                    HOSTS                        │  │
+│  │  (Cliente)  │◄────►│  ┌─────────┐  ┌─────────┐  ┌─────────┐         │  │
+│  └─────────────┘      │  │ host-6  │  │ host-N  │  │  ...    │         │  │
+│                       │  │(Swarm)  │  │         │  │         │         │  │
+│                       │  └────┬────┘  └─────────┘  └─────────┘         │  │
+│                       │       │         (Rede local entre hosts)        │  │
+│                       └───────┼─────────────────────────────────────────┘  │
+│                               │                                             │
+└───────────────────────────────┼─────────────────────────────────────────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │   Docker Swarm        │
+                    │   Rede: public        │
+                    │                       │
+                    │  ┌─────────────────┐  │
+                    │  │ Este Container  │  │
+                    │  │   (opencode)    │  │
+                    │  │ docker -> host  │  │
+                    │  └─────────────────┘  │
+                    │                       │
+                    │  ┌─────────────────┐  │
+                    │  │ postgres-svc    │  │
+                    │  │ redis-svc       │  │
+                    │  │ rabbitmq-svc    │  │
+                    │  │ minio-svc       │  │
+                    │  │ seq-svc         │  │
+                    │  │ twingate-ctrl   │  │
+                    │  └─────────────────┘  │
+                    └───────────────────────┘
+```
+
+### Componentes
+
+| Componente | Localizacao | Funcao |
+|------------|-------------|--------|
+| **Este Container (opencode)** | Rede Swarm `public` | Ambiente de dev onde os clientes conectam |
+| **Docker CLI** | Container -> Host | O comando `docker` aponta para o Docker do host-6 |
+| **Twingate Controller (Swarm)** | Rede Swarm `public` | Permite acesso aos servicos do Swarm pelo nome (DNS do Swarm) |
+| **Twingate Controller (Host)** | Um dos hosts | Permite acesso a rede de hosts |
+| **Twingate Client** | Mac Ale | Cliente que conecta na rede zero trust |
+
+### Fluxo de Acesso
+
+1. **Devs (ex: Mac Ale)** conectam neste container `opencode` para desenvolver
+2. **Servicos do Swarm** sao acessiveis pelo nome (ex: `postgres-svc`) gracas ao DNS do Swarm
+3. **Acesso externo** (do Mac) aos servicos do Swarm e feito via Twingate resources
+4. **Comandos Docker** executados aqui rodam no host-6 (socket mapeado)
+
+### Twingate Resources
+
+Com o cliente Twingate ligado no Mac, e possivel acessar diretamente:
+- `postgres-svc` - Banco PostgreSQL
+- `redis-svc` - Redis
+- Outros servicos da rede Swarm pelo nome do servico
+
+## Stack de Infraestrutura
 
 A stack de infra (`infra.yml`) contem os servicos essenciais para desenvolvimento:
 
